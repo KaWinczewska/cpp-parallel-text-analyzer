@@ -1,0 +1,25 @@
+cmake_minimum_required(VERSION 3.16)
+project(cpp-parallel-text-analyzer LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+find_package(Threads REQUIRED)
+
+add_library(analyzer src/analyzer.cpp)
+target_include_directories(analyzer PUBLIC include)
+target_link_libraries(analyzer PUBLIC Threads::Threads)
+target_compile_options(analyzer PRIVATE -Wall -Wextra -Wpedantic)
+
+add_executable(cpp-parallel-text-analyzer src/main.cpp)
+target_link_libraries(cpp-parallel-text-analyzer PRIVATE analyzer)
+target_compile_options(cpp-parallel-text-analyzer PRIVATE -Wall -Wextra -Wpedantic)
+
+enable_testing()
+add_executable(test_analyzer tests/test_analyzer.cpp src/analyzer.cpp)
+target_include_directories(test_analyzer PRIVATE include)
+target_link_libraries(test_analyzer PRIVATE Threads::Threads)
+target_compile_definitions(test_analyzer PRIVATE ANALYZER_TESTING)
+target_compile_options(test_analyzer PRIVATE -Wall -Wextra -Wpedantic)
+add_test(NAME analyzer_tests COMMAND test_analyzer)
+set_tests_properties(analyzer_tests PROPERTIES TIMEOUT 30)
